@@ -1,0 +1,14 @@
+<!-- droneapp/templates/index.html -->
+
+{% extends "layout.html" %}
+
+{% block content %}
+            <div align="center">
+                <h1>Drone Remote Control</h1>
+                <img src="/static/img/drone.png" width="100%">
+            </div>
+            <ul data-role="listview">
+                <li><a href="/controller/">Controller</a></li>
+                <li><a href="/games/shake/">Shake Game</a></li>
+            </ul>
+{% endblock %}
