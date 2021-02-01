@@ -1,0 +1,140 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+    <style>
+        .controller-box{
+            text-align: center;
+        }
+    </style>
+
+    <!-- 화면의 버튼을 전달하는 함수 -->
+    <script>
+        function sendCommand(command, params={}) {
+            console.log({action: 'sendCommand', command: command, params: params})
+            params['command'] = command
+            $.post("/api/command/", params).done(function (json) {
+                console.log({action: 'sendCommand', json: json})
+            }, 'json')
+        }
+
+        $(document).on('pageinit', function() {
+            $('#slider-speed').on("slidestop", function (event) {
+                let params = {
+                    speed: $("#slider-speed").val(),
+                };
+                sendCommand('speed', params);
+            });
+        });
+
+        function snapShot(){
+            $.post("/api/command/", {'command': 'snapshot'}).done(function (json) {
+                $('#div-snapshot').show();
+                $('#snapshot').attr('src', $('#snapshot').attr('src') + '?' + Math.random());
+            }, 'json')
+        }
+    </script>
+
+    <div class="controller-box">
+        <h1>Remote Controller</h1>
+    </div>
+
+    <div class="controller-box">
+        <div data-role="controlgroup" data-type="horizontal">
+            <button type="button" class="btn btn-primary" onclick="~~~; return false;">Take Off</button>
+            <button type="button" class="btn btn-secondary" onclick="~~~; return false;">Land</button>
+            <button type="button" class="btn btn-warning" onclick="~~~; return false;">Create Replay</button>
+            <button type="button" class="btn btn-danger" onclick="~~~; return false;">Emergency</button>
+        </div>
+    </div>
+
+    <div style="display: flex; justify-content: center;">
+        <table style="align-self: center;">
+            <td>    <!-- 1번째 4방향 버튼 -->
+                <div style="text-align: center;">
+                    <div class="ui-nodisc-icon ui-alt-icon">
+                        <a id="up" href="#"
+                           class="ui-btn ui-shadow ui-corner-all ui-icon-carat-u
+                                  ui-btn-icon-notext ui-btn-inline"
+                           onclick="sendCommand('up'); return false;"></a>
+                    </div>
+                    <div class="ui-nodisc-icon ui-alt-icon">
+                       <a href="#" class="ui-btn ui-shadow ui-corner-all ui-icon-forward
+                                          ui-btn-icon-notext ui-btn-inline"
+                          onclick="sendCommand('clockwise'); return false;"></a>
+                       <a href="#" class="ui-btn ui-shadow ui-corner-all ui-icon-back
+                                          ui-btn-icon-notext ui-btn-inline"
+                          onclick="sendCommand('counterClockwise'); return false;"></a>
+                    </div>
+                    <div class="ui-nodisc-icon ui-alt-icon">
+                        <a href="#" class="ui-btn ui-shadow ui-corner-all ui-icon-carat-d
+                                           ui-btn-icon-notext ui-btn-inline"
+                           onclick="sendCommand('down'); return false;"></a>
+                    </div>
+                </div>
+            </td>
+
+            <td>    <!-- 2번째 4방향 버튼 -->
+                <div style="text-align: center;">
+                    <div class="ui-nodisc-icon ui-alt-icon">
+                        <a href="#"
+                           class="ui-btn ui-shadow ui-corner-all ui-icon-arrow-u
+                                           ui-btn-icon-notext ui-btn-inline"
+                           onclick="sendCommand('forward'); return false;"></a>
+                    </div>
+                    <div class="ui-nodisc-icon ui-alt-icon">
+                       <a href="#"
+                          class="ui-btn ui-shadow ui-corner-all ui-icon-arrow-l
+                                 ui-btn-icon-notext ui-btn-inline"
+                          onclick="sendCommand('left'); return false;"></a>
+                       <a href="#"
+                          class="ui-btn ui-shadow ui-corner-all ui-icon-arrow-r
+                                 ui-btn-icon-notext ui-btn-inline"
+                          onclick="sendCommand('right'); return false;"></a>
+                    </div>
+                    <div class="ui-nodisc-icon ui-alt-icon">
+                        <a href="#"
+                           class="ui-btn ui-shadow ui-corner-all ui-icon-arrow-d
+                                  ui-btn-icon-notext ui-btn-inline"
+                           onclick="sendCommand('back'); return false;"></a>
+                    </div>
+                </div>
+            </td>
+        </table>
+    </div>
+
+    <div class="controller-box">
+        <h3>Speed</h3>
+        <input type="range" name="slider-2" id="slider-speed" data-highlight="true" min="0" max="100" value="10">
+    </div>
+
+    <div class="controller-box">
+        <h3>Flip</h3>
+        <div class="btn-group">
+            <button type="button" class="btn btn-info">Forward</button>
+            <button type="button" class="btn btn-info">Left</button>
+            <button type="button" class="btn btn-info">Right</button>
+            <button type="button" class="btn btn-info">Back</button>
+        </div>
+    </div>
+
+    <div class="controller-box">
+        <h3>ADVANCED MODE</h3>
+
+        <div class="btn-group">
+            <button type="button" class="btn btn-info">START Detect And Track</button>
+            <button type="button" class="btn btn-info">STOP Detect And Track</button>
+        </div>
+
+        <br>
+        <img src="/video/streaming" />
+    </div>
+
+    <div class="controller-box">
+        <h3>CAMERA</h3>
+        <a href="#" data-role="button" data-inline="true" onclick="snapShot(); return false;">Snapshot</a>
+        <br>
+        <div id="div-snapshot" style="display: none">
+            <img id="snapshot" src="/static/img/snapshots/snapshot.jpg">
+        </div>
+    </div>
+{% endblock content %}

@@ -52,7 +52,7 @@ status_log_thread = threading.Thread(target=drone_status)   # 병렬처리할 �
 status_log_thread.start()  # 병렬처리 시작
 
 # 긴급 정지
-def stop():
+def emergency_stop():
     e_stop = input("stop() is doing~!!")
     if e_stop == "1":
         print("emergency all stop")
@@ -152,11 +152,11 @@ if conneted == 'ok':
     print("connected!!!!")
 
     # 배터리 상태 확인하기
-    battery = tello.get_battery()
-    print("battery: {}".format(battery))
+    battery1 = tello.get_battery()
+    print("battery: {}".format(battery1))
 
     # 배터리가 30% 초과일 경우에만 실행
-    if int(battery) > 30:
+    if int(battery1) > 30:
         print("battery is Good")
 
         while True:
@@ -180,7 +180,7 @@ if conneted == 'ok':
             if mode in ['k', 'K']:  # 키보드로 조작하기
                 kp.init()   # 키보드 입력을 받기위해
 
-                emergency_thread = threading.Thread(target=stop)    # 병렬처리할 함수를 지정하기
+                emergency_thread = threading.Thread(target=emergency_stop)    # 병렬처리할 함수를 지정하기
                 emergency_thread.daemon = True  # 데몬 쓰레드로 지정
                 emergency_thread.start()  # 병렬처리 시작
 
@@ -200,9 +200,11 @@ if conneted == 'ok':
                 print("Remote mode ~ !!!!!")
 
             if mode in ['0']:
-                stopping = False
+                battery2 = tello.get_battery()
+                print("battery: {}".format(battery2))
+                tello.end()
+                print("push the Power off button")
                 break
-
 
     else:   # 배터리가 30% 이하일 경우에
         print("battery needs to be charged")

@@ -32,8 +32,8 @@ kp.init()
 
 def getKeyboardInput():
     lr, fb, ud, yv = 0, 0, 0, 0
-    # 오른쪽, 앞, 상승, 오른쪽각틀기 : +
-    # 왼쪽, 뒤, 하강, 왼쪽각도 틀기 : -
+    # 오른쪽, 앞, 상승, 시계방향 : +
+    # 왼쪽, 뒤, 하강, 반시계방향 : -
     speed = 15
     aspeed = 50
     global map_x, map_y, yaw, a
