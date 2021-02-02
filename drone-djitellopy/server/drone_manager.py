@@ -10,8 +10,6 @@ import os
 # 이미지 저장 장소
 image_dir = os.path.isdir('C:\Test\drone\server\images')
 
-global img
-
 ######## MAPPING PARAMETERS ###########
 fSpeed = 10  # Forward Speed in cm/s (맵에서의 스피드)
 aSpeed = 30  # Angular Speed Degrees/s (맵에서의 각도)
@@ -31,7 +29,7 @@ map_y = int(map_height / 2)  # 드론의 y좌표
 
 a = 0
 yaw = 0
-points = [(0,0), (0,0)]
+points = [(0, 0), (0, 0)]
 ########################################
 
 tello = Tello()
@@ -67,7 +65,7 @@ def droneview():
     tello.streamon()    # 드론의 프레임 시작하기
     while True:
         img = tello.get_frame_read().frame  # 드론의 프레임 읽어오기
-        img = cv2.resize(img, (360, 240))   # 화면 사이즈 변경
+        img = cv2.resize(img, (640, 480))   # 화면 사이즈 변경
         cv2.imshow('tello view', img)   # 화면으로 보여주기
         cv2.waitKey(1)
 
@@ -140,7 +138,7 @@ def getKeyboardInput():
 def mapping(map, points):
     for point in points:
         cv2.circle(map, point, 5, (0, 0, 255), cv2.FILLED)  # 빨간 드론의 이동 경로 기록
-    cv2.circle(map, points[-1], 6, (0, 255,0), cv2.FILLED)  # 드론의 위치를 녹색으로 map에 표시
+    cv2.circle(map, points[-1], 6, (0, 255, 0), cv2.FILLED)  # 드론의 위치를 녹색으로 map에 표시
     # print("lr : " + str(points[-1][0]))
     # print("fb : " + str(points[-1][1]))
     cv2.putText(map, f'({(points[-1][0] - map_x_center) / 100},{(points[-1][1] - map_y_center) / 100})m',  # 좌표 숫자
@@ -198,6 +196,15 @@ if conneted == 'ok':
             # 웹으로 조작
             if mode in ['R', 'r']:
                 print("Remote mode ~ !!!!!")
+
+            # 데이터 셋 만드는 모드
+            if mode in ['D', 'd']:
+                tello.move_up(60)
+                global img
+                time.sleep(3)
+                cv2.imwrite("picture.png", img.frame)
+
+                pass
 
             if mode in ['0']:
                 battery2 = tello.get_battery()

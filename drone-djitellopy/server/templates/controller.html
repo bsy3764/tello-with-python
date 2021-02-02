@@ -9,26 +9,37 @@
 
     <!-- 화면의 버튼을 전달하는 함수 -->
     <script>
+        // onclick시 호출하는 함수 정의
         function sendCommand(command, params={}) {
+            // 브라우저에 보여줄 로그 생성
             console.log({action: 'sendCommand', command: command, params: params})
-            params['command'] = command
-            $.post("/api/command/", params).done(function (json) {
+            params['command'] = command    // dict 형식으로 저장됨
+
+            // jQuery에서 Ajax를 이용한 POST 방식의 HTTP 요청을 구현한 메소드를 제공
+            // $.post(URL주소[,데이터][,콜백함수]);
+            $.post("/web/command/", params).done(function (json) {
                 console.log({action: 'sendCommand', json: json})
             }, 'json')
         }
 
+        // $(document) : DOM(HTML이나 XML 상위의 구조)이 생성되면 사용 가능
+        // $(document).on : 이벤트를 위임하기
         $(document).on('pageinit', function() {
+            // id가 slider-speed인 것을 클릭할 때마다 이벤트 발생
+            // 슬라이드 중지 이벤트에 묶기
             $('#slider-speed').on("slidestop", function (event) {
-                let params = {
-                    speed: $("#slider-speed").val(),
+                let params = {    // 다시 초기화 시킬수 있는 변수
+                    speed: $("#slider-speed").val(),  // slider-speed의 값을 가져옴
                 };
                 sendCommand('speed', params);
             });
         });
 
         function snapShot(){
-            $.post("/api/command/", {'command': 'snapshot'}).done(function (json) {
-                $('#div-snapshot').show();
+            $.post("/web/command/", {'command': 'snapshot'}).done(function (json) {
+                $('#div-snapshot').show();    // 요소 보이게
+
+                // 요소의 속성의 값을 가져오거나 속성 추가
                 $('#snapshot').attr('src', $('#snapshot').attr('src') + '?' + Math.random());
             }, 'json')
         }
@@ -40,8 +51,8 @@
 
     <div class="controller-box">
         <div data-role="controlgroup" data-type="horizontal">
-            <button type="button" class="btn btn-primary" onclick="~~~; return false;">Take Off</button>
-            <button type="button" class="btn btn-secondary" onclick="~~~; return false;">Land</button>
+            <a href="#" data-role="button" onclick="sendCommand('takeOff'); return false;">Take Off</a>
+            <a href="#" data-role="button" onclick="sendCommand('land'); return false;">Land</a>
             <button type="button" class="btn btn-warning" onclick="~~~; return false;">Create Replay</button>
             <button type="button" class="btn btn-danger" onclick="~~~; return false;">Emergency</button>
         </div>
