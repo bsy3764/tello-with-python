@@ -1,0 +1,236 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+    <style>
+        .controller-box{
+            text-align: center;
+        }
+
+        .buttons {
+  			background-color: #4CAF50; /* Green */
+  			border: none;
+  			color: white;
+            padding: 16px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            transition-duration: 0.4s;
+            cursor: pointer;
+         }
+
+         .btn-takeoff {
+            background-color: white;
+            color: black;
+            border: 2px solid #4CAF50;
+        }
+
+        .btn-takeoff:hover {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .btn-land {
+            background-color: white;
+            color: black;
+            border: 2px solid #008CBA;
+        }
+
+        .btn-land:hover {
+            background-color: #008CBA;
+            color:  white;
+        }
+
+        .btn-streamon {
+            background-color: white;
+            color: black;
+            border: 2px solid #cc33ff;
+        }
+
+        .btn-streamon:hover {
+            background-color: #cc33ff;
+            color: white;
+        }
+
+        .btn-emergency {
+            background-color: white;
+            color: black;
+            border: 2px solid #f44336;
+        }
+
+        .btn-emergency:hover {
+            background-color: #f44336;
+            color: white;
+        }
+
+
+    </style>
+
+    <!-- 화면의 버튼을 전달하는 함수 -->
+    <script>
+        // onclick시 호출하는 함수 정의
+        function sendCommand(command, params={}) {
+            console.log({action: 'sendCommand', command: command, params: params})
+            params['command'] = command    // dict 형식으로 저장됨
+            // jQuery에서 Ajax를 이용한 POST 방식의 HTTP 요청을 구현한 메소드를 제공
+            // $.post(URL주소[,데이터][,콜백함수]);
+            // $.post().done() : 요청이 성공했을 때 실행될 코드를 지정
+            $.ajax({
+                type: "POST",
+                url: "/web/command/",
+                data: params,
+                dataType: "json",
+                success: function(json){
+                    let result = json['status'];
+                    if (result == 'success'){
+                        console.log(command + " : success");
+                    }
+                },
+                error: function(json){
+                    let result = json['status'];
+                    if (result != 'success'){
+                        console.log(command +" : Error");
+                    }
+                }
+            });
+        };
+
+        // $(document) : DOM(HTML이나 XML 상위의 구조)이 생성되면 사용 가능
+        // $(document).on : 이벤트를 위임하기
+        $(document).on('pageinit', function() {
+            // id가 slider-speed인 것을 클릭할 때마다 이벤트 발생
+            // 슬라이드 중지 이벤트에 묶기
+            $('#slider-speed').on("slidestop", function (event) {
+                let params = {    // 다시 초기화 시킬수 있는 변수
+                    speed: $("#slider-speed").val(),  // slider-speed의 값을 가져옴
+                };
+                sendCommand('speed', params);
+            });
+        });
+
+        function snapShot(){
+            $.post("/web/command/", {'command': 'snapshot'}).done(function (json) {
+                $('#div-snapshot').show();    // 요소 보이게
+
+                // 요소의 속성의 값을 가져오거나 속성 추가
+                $('#snapshot').attr('src', $('#snapshot').attr('src') + '?' + Math.random());
+            }, 'json')
+        }
+
+        function createReplay(){
+            console.log("create Replay");
+            $.post("/replay/create/");
+        }
+
+        function myFunction() {
+            let x = document.getElementById("slider-speed").value;
+            document.getElementById("demo").innerHTML = x;
+        }
+    </script>
+
+    <div class="controller-box">
+        <h1>Remote Controller</h1>
+    </div>
+
+    <div class="controller-box">
+        <div data-role="controlgroup" data-type="horizontal">
+            <a href="#" class="buttons btn-takeoff" data-role="button" onclick="sendCommand('takeOff'); return false;">Take Off</a>
+            <a href="#" class="buttons btn-land" data-role="button" onclick="sendCommand('land'); return false;">Land</a>
+            <a href="#" class="buttons btn-streamon" data-role="button" onclick="sendCommand('streamon'); return false;">Video Start</a>
+            <a href="#" class="buttons btn-emergency" data-role="button" onclick="sendCommand('emergency'); return false;">Emergency</a>
+        </div>
+    </div>
+
+    <div style="display: flex; justify-content: center;">
+        <table style="align-self: center;">
+            <td>    <!-- 1번째 4방향 버튼 -->
+                <div style="text-align: center;">
+                    <div class="ui-nodisc-icon ui-alt-icon">
+                        <a id="up" href="#"
+                           class="ui-btn ui-shadow ui-corner-all ui-icon-carat-u
+                                  ui-btn-icon-notext ui-btn-inline"
+                           onclick="sendCommand('up'); return false;"></a>
+                    </div>
+                    <div class="ui-nodisc-icon ui-alt-icon">
+                       <a href="#" class="ui-btn ui-shadow ui-corner-all ui-icon-forward
+                                          ui-btn-icon-notext ui-btn-inline"
+                          onclick="sendCommand('clockwise'); return false;"></a>
+                       <a href="#" class="ui-btn ui-shadow ui-corner-all ui-icon-back
+                                          ui-btn-icon-notext ui-btn-inline"
+                          onclick="sendCommand('counterClockwise'); return false;"></a>
+                    </div>
+                    <div class="ui-nodisc-icon ui-alt-icon">
+                        <a href="#" class="ui-btn ui-shadow ui-corner-all ui-icon-carat-d
+                                           ui-btn-icon-notext ui-btn-inline"
+                           onclick="sendCommand('down'); return false;"></a>
+                    </div>
+                </div>
+            </td>
+
+            <td>    <!-- 2번째 4방향 버튼 -->
+                <div style="text-align: center;">
+                    <div class="ui-nodisc-icon ui-alt-icon">
+                        <a href="#"
+                           class="ui-btn ui-shadow ui-corner-all ui-icon-arrow-u
+                                           ui-btn-icon-notext ui-btn-inline"
+                           onclick="sendCommand('forward'); return false;"></a>
+                    </div>
+                    <div class="ui-nodisc-icon ui-alt-icon">
+                       <a href="#"
+                          class="ui-btn ui-shadow ui-corner-all ui-icon-arrow-l
+                                 ui-btn-icon-notext ui-btn-inline"
+                          onclick="sendCommand('left'); return false;"></a>
+                       <a href="#"
+                          class="ui-btn ui-shadow ui-corner-all ui-icon-arrow-r
+                                 ui-btn-icon-notext ui-btn-inline"
+                          onclick="sendCommand('right'); return false;"></a>
+                    </div>
+                    <div class="ui-nodisc-icon ui-alt-icon">
+                        <a href="#"
+                           class="ui-btn ui-shadow ui-corner-all ui-icon-arrow-d
+                                  ui-btn-icon-notext ui-btn-inline"
+                           onclick="sendCommand('back'); return false;"></a>
+                    </div>
+                </div>
+            </td>
+        </table>
+    </div>
+
+    <div class="controller-box">
+        <h3>Speed</h3>
+        <input type="range" onclick="myFunction()" name="slider-2" id="slider-speed" data-highlight="true" min="0" max="100" value="30">
+        <p id="demo">30</p>
+    </div>
+
+    <div class="controller-box">
+        <h3>Flip</h3>
+        <div class="btn-group">
+            <button type="button" class="btn btn-info">Forward</button>
+            <button type="button" class="btn btn-info">Left</button>
+            <button type="button" class="btn btn-info">Right</button>
+            <button type="button" class="btn btn-info">Back</button>
+        </div>
+    </div>
+
+    <div class="controller-box">
+        <h3>ADVANCED MODE</h3>
+
+        <div class="btn-group">
+            <button type="button" class="btn btn-info">START Detect And Track</button>
+            <button type="button" class="btn btn-info">STOP Detect And Track</button>
+        </div>
+
+        <br>
+        <img src="/video/streaming" />
+    </div>
+
+    <div class="controller-box">
+        <h3>CAMERA</h3>
+        <a href="#" data-role="button" data-inline="true" onclick="snapShot(); return false;">Snapshot</a>
+        <br>
+        <div id="div-snapshot" style="display: none">
+            <img id="snapshot" src="/static/img/snapshots/snapshot.jpg">
+        </div>
+    </div>
+{% endblock content %}
