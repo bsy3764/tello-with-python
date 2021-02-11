@@ -38,6 +38,8 @@ def command():
         drone.connect()
     if cmd == 'streamon':
         drone.streamon()
+    if cmd == 'streamoff':
+        drone.streamoff()
     if cmd == 'takeOff':
         drone.takeoff()
     if cmd == 'land':
@@ -92,12 +94,16 @@ def keyboard_cmd():
 def create_replay():
     print("create replay start")
 
+# Generator(제네레이터) : iterator(값을 차례대로 꺼낼 수 있는 객체)를 생성해주는 함수
 def video_generator():
     drone = tello.Tello()
     for jpeg in drone.video_jpeg_generator():
-        yield (b'--frame\r\n'
-               b'COntent-Type: image/jpeg\r\n\r\n' +
-               jpeg + b'\r\n\r\n')
+        # yield으로 순차 출력
+        # M JPEG : 영상을 표현하기 위해 JPEG 이미지(.jpg 와 같은 확장자를 사용)를 시간순에 따라 나열한 방식
+        # Content-Type (반송 파일 형식으로) multipart / x-mixed-replace(multipart/x-mixed-replace (MIME 형식))를 이용
+        yield (b'--frame\r\n'   # 프레임
+               b'Content-Type: image/jpeg\r\n\r\n' +    # 데이터 형식
+               jpeg + b'\r\n\r\n')  # jpeg 이미지 데이터
 
 @app.route('/video/streaming')
 def video_feed():

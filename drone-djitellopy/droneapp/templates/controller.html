@@ -123,7 +123,7 @@
             $.post("/replay/create/");
         }
 
-        function myFunction() {
+        function speed_check() {
             let x = document.getElementById("slider-speed").value;
             document.getElementById("demo").innerHTML = x;
         }
@@ -137,7 +137,7 @@
         <div data-role="controlgroup" data-type="horizontal">
             <a href="#" class="buttons btn-takeoff" data-role="button" onclick="sendCommand('takeOff'); return false;">Take Off</a>
             <a href="#" class="buttons btn-land" data-role="button" onclick="sendCommand('land'); return false;">Land</a>
-            <a href="#" class="buttons btn-streamon" data-role="button" onclick="sendCommand('streamon'); return false;">Video Start</a>
+            <a href="#" class="buttons btn-streamon" data-role="button" onclick="sendCommand('streamon'); return false;">Video On</a>
             <a href="#" class="buttons btn-emergency" data-role="button" onclick="sendCommand('emergency'); return false;">Emergency</a>
         </div>
     </div>
@@ -199,7 +199,7 @@
 
     <div class="controller-box">
         <h3>Speed</h3>
-        <input type="range" onclick="myFunction()" name="slider-2" id="slider-speed" data-highlight="true" min="0" max="100" value="30">
+        <input type="range" onclick="speed_check()" name="slider-2" id="slider-speed" data-highlight="true" min="0" max="100" value="30">
         <p id="demo">30</p>
     </div>
 

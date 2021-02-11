@@ -61,8 +61,6 @@ class DroneManager(metaclass=Singleton):    # 싱글톤 사용하기
         self.is_imperial = is_imperial
         self.speed = speed
 
-        self.tello = tello.Tello()
-
         # 소켓 생성
         # UDP이므로 SOCK_DGRAM 사용
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -103,7 +101,7 @@ class DroneManager(metaclass=Singleton):    # 싱글톤 사용하기
 
         # 다른 쓰레드에서 보내기 위해???
         self.proc_stdin = self.proc.stdin
-        self.proc_stdout = self.proc_stdout
+        self.proc_stdout = self.proc.stdout
 
         # Vedio 스트림 포트
         self.video_port = 11111
@@ -125,18 +123,11 @@ class DroneManager(metaclass=Singleton):    # 싱글톤 사용하기
         self._command_thread = None
 
         # 데이터 보내기(드론에게 명령어 전달)
-        # self.send_command('command')
-        # self.send_command('streamon')
+        self.send_command('command')
+        self.send_command('streamon')
 
         # 드론의 스피드 조절하는 함수 호출
         self.set_speed(self.speed)
-
-    def connected(self):
-        self.conneted = self.tello.send_command_with_return(command="command") 
-        print("connect result :" + self.conneted)
-
-    def video_start(self):
-        self.video = self.tello.send_command_with_return(command="streamon")
 
     # 드론의 상태 메시지 받는 함수
     def receive_response(self, stop_event):
@@ -258,38 +249,6 @@ class DroneManager(metaclass=Singleton):    # 싱글톤 사용하기
 
     def flip_right(self):
         return self.send_command('flip r')
-
-    def report(str):
-        stdscr.addstr(0, 0, str)
-        stdscr.refresh()
-
-    def tello_state(self):
-        stdscr = curses.initscr()
-        curses.noecho()
-        curses.cbreak()
-
-        local_ip = ''
-        local_port = 8890
-        socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # socket for sending cmd
-        socket.bind((local_ip, local_port))
-
-        socket.sendto('command'.encode('utf-8'), self.drone_address)
-
-        try:
-            index = 0
-            while True:
-                index += 1
-                response, ip = socket.recvfrom(1024)
-                if response == 'ok':
-                    continue
-                out = response.replace(';', ';\n')
-                out = 'Tello State:\n' + out
-                report(out)
-                sleep(INTERVAL)
-        except KeyboardInterrupt:
-            curses.echo()
-            curses.nocbreak()
-            curses.endwin()
 
     # 순찰을 시작하는 함수
     def patrol(self):
@@ -445,7 +404,7 @@ class DroneManager(metaclass=Singleton):    # 싱글톤 사용하기
                         f.write(jpeg_binary)
                 self.is_snapshot = False
 
-            yield jpeg_binary
+            yield jpeg_binary   # 함수가 제너레이터를 반환
 
     # 스냅샷을 가져오기 위한 함수
     def snapshot(self):
