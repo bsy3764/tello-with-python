@@ -10,7 +10,7 @@
   			background-color: #4CAF50; /* Green */
   			border: none;
   			color: white;
-            padding: 16px 32px;
+            padding: 10px 20px;
             text-align: center;
             text-decoration: none;
             display: inline-block;
@@ -206,10 +206,10 @@
     <div class="controller-box">
         <h3>Flip</h3>
         <div class="btn-group">
-            <button type="button" class="btn btn-info">Forward</button>
-            <button type="button" class="btn btn-info">Left</button>
-            <button type="button" class="btn btn-info">Right</button>
-            <button type="button" class="btn btn-info">Back</button>
+            <button type="button" class="btn btn-info" onclick="sendCommand('flipFront');">Forward</button>
+            <button type="button" class="btn btn-info" onclick="sendCommand('flipLeft');">Left</button>
+            <button type="button" class="btn btn-info" onclick="sendCommand('flipRight');">Right</button>
+            <button type="button" class="btn btn-info" onclick="sendCommand('flipBack');">Back</button>
         </div>
     </div>
 
@@ -217,20 +217,22 @@
         <h3>ADVANCED MODE</h3>
 
         <div class="btn-group">
-            <button type="button" class="btn btn-info">START Detect And Track</button>
-            <button type="button" class="btn btn-info">STOP Detect And Track</button>
+            <button type="button" class="btn btn-info" onclick="sendCommand('faceDetectAndTrack');">START Detect And Track</button>
+            <button type="button" class="btn btn-info" onclick="sendCommand('stopFaceDetectAndTrack');">STOP Detect And Track</button>
         </div>
 
         <br>
-        <img src="/video/streaming" />
     </div>
 
     <div class="controller-box">
         <h3>CAMERA</h3>
+        <img src="/video/streaming" width="720px" height="460px"/>
+        <!-- <img src="{{ url_for('video_feed') }}" width="720px" height="460px" /> -->
+        <!-- <img src="https://i.pinimg.com/originals/37/0c/f1/370cf10c4ef661996aea4dfc4e91cf53.png" /> -->
+
+        <br>
+        
         <a href="#" data-role="button" data-inline="true" onclick="snapShot(); return false;">Snapshot</a>
         <br>
-        <div id="div-snapshot" style="display: none">
-            <img id="snapshot" src="/static/img/snapshots/snapshot.jpg">
-        </div>
     </div>
 {% endblock content %}
