@@ -76,6 +76,31 @@
             // jQuery에서 Ajax를 이용한 POST 방식의 HTTP 요청을 구현한 메소드를 제공
             // $.post(URL주소[,데이터][,콜백함수]);
             // $.post().done() : 요청이 성공했을 때 실행될 코드를 지정
+
+            if (command == 'up' || command == 'down' || command == 'forward' || 
+                command == 'back' || command == 'left' || command == 'right'){
+                    params['speed'] = $("#slider-speed").val();
+
+                    $.ajax({
+                        type: "POST",
+                        url: "/web/command/",
+                        data: params,
+                        dataType: "json",
+                        success: function(json){
+                            let result = json['status'];
+                            if (result == 'success'){
+                                console.log(command + " : success");
+                            }
+                        },
+                        error: function(json){
+                            let result = json['status'];
+                            if (result != 'success'){
+                                console.log(command +" : Error");
+                            }
+                        }
+                    });
+                }
+
             $.ajax({
                 type: "POST",
                 url: "/web/command/",

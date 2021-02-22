@@ -3,6 +3,7 @@
 
 import logging
 import config
+import cv2
 from DJITelloPy.djitellopy.tello import Tello
 from flask import render_template, request, jsonify, Response
 import time
@@ -10,7 +11,6 @@ import time
 
 # from droneapp.models.drone_manager import DroneManager
 from droneapp.models.manual_control_pygame import FrontEnd
-import droneapp.models.course
 
 logger = logging.getLogger(__name__)    # getLogger의 인자로는 만들고 싶은 로거 이름을 전달
 app = config.app    # Flask 인스턴스 가져오기
@@ -28,6 +28,10 @@ def mode():
 def controller():
     return render_template('controller.html')
 
+@app.route('/mode/detact/')
+def detact():
+    return render_template('detact.html')
+
 # Flask의 이미지 버튼으로 명령어 전달
 @app.route('/web/command/', methods=['POST'])
 def command():
@@ -38,6 +42,8 @@ def command():
         drone.connect()
     if cmd == 'streamon':
         drone.streamon()
+    if cmd == 'streamoff':
+        drone.streamoff()
     if cmd == 'takeOff':
         drone.takeoff()
     if cmd == 'land':
@@ -48,22 +54,28 @@ def command():
         if speed:
             drone.set_speed(int(speed))
     if cmd == 'up':
-        drone.move_up()
+        speed = request.form.get('speed')
+        drone.move_up(int(speed))
     if cmd == 'down':
-        drone.move_down()
+        speed = request.form.get('speed')
+        drone.move_down(int(speed))
     if cmd == 'forward':
-        drone.move_forward()
+        speed = request.form.get('speed')
+        drone.move_forward(int(speed))
     if cmd == 'back':
-        drone.move_back()
+        speed = request.form.get('speed')
+        drone.move_back(int(speed))
     if cmd == 'clockwise':
         drone.rotate_clockwise()
     if cmd == 'counterClockwise':
         drone.rotate_counter_clockwise()
     if cmd == 'left':
-        drone.move_left()
+        speed = request.form.get('speed')
+        drone.move_left(int(speed))
     if cmd == 'right':
-        drone.move_right()
-    if cmd == ' flipFront':
+        speed = request.form.get('speed')
+        drone.move_right(int(speed))
+    if cmd == 'flipFront':
         drone.flip_front()
     if cmd == 'flipBack':
         drone.flip_back()
@@ -87,6 +99,7 @@ def command():
 def keyboard_cmd():
     drone = FrontEnd()
     drone.run()
+    return render_template('Keyboard.html')
 
 @app.route('/replay/create/')
 def create_replay():
@@ -108,14 +121,6 @@ def gen_frames():
 @app.route('/video/streaming')
 def video_feed():
     return Response(gen_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
-
-# 코스를 불러오기
-def get_courses(course_id=None):
-    drone = Tello()
-    courses = droneapp.models.course.get_courses(drone)
-    if course_id:
-        return courses.get(course_id)
-    return courses
 
 @app.route('/monitor/')
 def monitor():

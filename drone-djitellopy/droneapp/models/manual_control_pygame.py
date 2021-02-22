@@ -1,4 +1,4 @@
-from djitellopy import Tello
+from DJITelloPy.djitellopy.tello import Tello
 import cv2
 import pygame
 import numpy as np
@@ -20,7 +20,7 @@ class FrontEnd(object):
             - A: Counter clockwise
             - D: clockwise
             - W: up
-            - S: down.
+            - S: down
     """
 
     def __init__(self):
