@@ -7,13 +7,17 @@ import cv2
 from DJITelloPy.djitellopy.tello import Tello
 from flask import render_template, request, jsonify, Response
 import time
+import datetime
 # jsonify : 사용자가 json data를 내보내도록 제공
 
 # from droneapp.models.drone_manager import DroneManager
 from droneapp.models.manual_control_pygame import FrontEnd
+from droneapp.db_conn import Database
 
 logger = logging.getLogger(__name__)    # getLogger의 인자로는 만들고 싶은 로거 이름을 전달
 app = config.app    # Flask 인스턴스 가져오기
+
+global cmd
 
 @app.route('/')
 def index():
@@ -66,9 +70,11 @@ def command():
         speed = request.form.get('speed')
         drone.move_back(int(speed))
     if cmd == 'clockwise':
-        drone.rotate_clockwise()
+        angle = request.form.get('angle')
+        drone.rotate_clockwise(int(angle))
     if cmd == 'counterClockwise':
-        drone.rotate_counter_clockwise()
+        angle = request.form.get('angle')
+        drone.rotate_counter_clockwise(int(angle))
     if cmd == 'left':
         speed = request.form.get('speed')
         drone.move_left(int(speed))
@@ -101,10 +107,25 @@ def keyboard_cmd():
     drone.run()
     return render_template('Keyboard.html')
 
-@app.route('/replay/create/')
-def create_replay():
+@app.route('/replay/create/', methods=['POST'])
+def create_replay():    # DB에 저장하기
     print("create replay start")
+    replay_name = request.form.get('replay')
+    print("replay_name : {}".format(replay_name))
+    replay_date = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    print("replay_date : {}".format(replay_date))
 
+    # DB 연결할 객체
+    db_class = Database()
+
+    # replay_list 테이블 삽입
+    sql = "insert into replay_list(replay_name) values ({})".format(replay_name)
+    row = db_class.execute(sql)
+    db_class.commit()
+
+    cmds = command()
+
+    return render_template('controller.html')
 
 # Generator(제네레이터) : iterator(값을 차례대로 꺼낼 수 있는 객체)를 생성해주는 함수
 # def video_generator():

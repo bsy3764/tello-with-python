@@ -77,9 +77,33 @@
             // $.post(URL주소[,데이터][,콜백함수]);
             // $.post().done() : 요청이 성공했을 때 실행될 코드를 지정
 
+            // move 명령일 경우, 스피드도 전달이 필요하므로
             if (command == 'up' || command == 'down' || command == 'forward' || 
                 command == 'back' || command == 'left' || command == 'right'){
                     params['speed'] = $("#slider-speed").val();
+
+                    $.ajax({
+                        type: "POST",
+                        url: "/web/command/",
+                        data: params,
+                        dataType: "json",
+                        success: function(json){
+                            let result = json['status'];
+                            if (result == 'success'){
+                                console.log(command + " : success");
+                            }
+                        },
+                        error: function(json){
+                            let result = json['status'];
+                            if (result != 'success'){
+                                console.log(command +" : Error");
+                            }
+                        }
+                    });
+                }
+
+                if (command == 'clockwise' || command == 'counterClockwise'){
+                    params['angle'] = $("#slider-angle").val();
 
                     $.ajax({
                         type: "POST",
@@ -134,6 +158,17 @@
             });
         });
 
+        $(document).on('pageinit', function() {
+            // id가 slider-angle인 것을 클릭할 때마다 이벤트 발생
+            // 슬라이드 중지 이벤트에 묶기
+            $('#slider-angle').on("slidestop", function (event) {
+                let params = {    // 다시 초기화 시킬수 있는 변수
+                    angle: $("#slider-angle").val(),  // slider-angle의 값을 가져옴
+                };
+                sendCommand('angle', params);
+            });
+        });
+
         function snapShot(){
             $.post("/web/command/", {'command': 'snapshot'}).done(function (json) {
                 $('#div-snapshot').show();    // 요소 보이게
@@ -143,14 +178,51 @@
             }, 'json')
         }
 
-        function createReplay(){
-            console.log("create Replay");
-            $.post("/replay/create/");
-        }
+
+        $(document).ready(function() {
+            $('#button1').click(function() {
+                console.log("tes1");
+                st = $('#button1').text();
+                console.log("st :" + st);
+                if( st == 'Create Replay' ) {
+                    console.log("tes2");
+                    var Rtitle = prompt('Replay Title?');
+                    let params = {replay: Rtitle};
+                    console.log("Rtitle :" + Rtitle);
+                    if (Rtitle == '' || Rtitle == null) {
+                        console.log('Replay not Start');
+                    } else {
+                        $('#button1').text('Save Replay');
+                        document.getElementById("button1").value = 'Save Replay';
+                        $.ajax({
+                            type: "POST",
+                            url: "/replay/create/",
+                            data: params,
+                            dataType: "json"
+                        })
+                    }
+                } else {
+                    console.log("test3");
+                    var result = confirm("Replay save???")
+                    if(result){
+                        console.log("Yes, Save");
+                    }else{
+                        console.log("No, Not Dave");
+                    }
+                    $('#button1').text('Create Replay');
+                    document.getElementById("button1").value = 'Create Replay';
+                }
+            });
+        });
 
         function speed_check() {
             let x = document.getElementById("slider-speed").value;
-            document.getElementById("demo").innerHTML = x;
+            document.getElementById("demo1").innerHTML = x;
+        }
+
+        function angle_check() {
+            let x = document.getElementById("slider-angle").value;
+            document.getElementById("demo2").innerHTML = x;
         }
     </script>
 
@@ -162,7 +234,7 @@
         <div data-role="controlgroup" data-type="horizontal">
             <a href="#" class="buttons btn-takeoff" data-role="button" onclick="sendCommand('takeOff'); return false;">Take Off</a>
             <a href="#" class="buttons btn-land" data-role="button" onclick="sendCommand('land'); return false;">Land</a>
-            <a href="#" class="buttons btn-streamon" data-role="button" onclick="sendCommand('streamon'); return false;">Video On</a>
+            <a href="#" class="buttons btn-streamon" id="vodOn" data-role="button" onclick="sendCommand('streamon'); return false;">Video On</a>
             <a href="#" class="buttons btn-emergency" data-role="button" onclick="sendCommand('emergency'); return false;">Emergency</a>
         </div>
     </div>
@@ -225,7 +297,12 @@
     <div class="controller-box">
         <h3>Speed</h3>
         <input type="range" onclick="speed_check()" name="slider-2" id="slider-speed" data-highlight="true" min="0" max="100" value="30">
-        <p id="demo">30</p>
+        <p id="demo1">30</p>
+    </div>
+    <div class="controller-box">
+        <h3>Angle</h3>
+        <input type="range" onclick="angle_check()" name="slider-2" id="slider-angle" data-highlight="true" min="0" max="360" value="30">
+        <p id="demo2">30</p>
     </div>
 
     <div class="controller-box">
@@ -240,24 +317,20 @@
 
     <div class="controller-box">
         <h3>ADVANCED MODE</h3>
-
         <div class="btn-group">
             <button type="button" class="btn btn-info" onclick="sendCommand('faceDetectAndTrack');">START Detect And Track</button>
             <button type="button" class="btn btn-info" onclick="sendCommand('stopFaceDetectAndTrack');">STOP Detect And Track</button>
+            <button type="button" class="btn btn-info" id='button1' value='Create Replay'>Create Replay</button>
         </div>
-
-        <br>
+        <br/>
     </div>
 
-    <div class="controller-box">
+    <div class="controller-box" id="vod">
         <h3>CAMERA</h3>
         <img src="/video/streaming" width="720px" height="460px"/>
         <!-- <img src="{{ url_for('video_feed') }}" width="720px" height="460px" /> -->
         <!-- <img src="https://i.pinimg.com/originals/37/0c/f1/370cf10c4ef661996aea4dfc4e91cf53.png" /> -->
 
-        <br>
-        
-        <a href="#" data-role="button" data-inline="true" onclick="snapShot(); return false;">Snapshot</a>
         <br>
     </div>
 {% endblock content %}
