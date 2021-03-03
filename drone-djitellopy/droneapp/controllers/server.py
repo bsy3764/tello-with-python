@@ -17,7 +17,9 @@ from droneapp.db_conn import Database
 logger = logging.getLogger(__name__)    # getLogger의 인자로는 만들고 싶은 로거 이름을 전달
 app = config.app    # Flask 인스턴스 가져오기
 
-global cmd
+start = time.time()
+mode = 0    # 0: not save, 1: save
+log = []
 
 @app.route('/')
 def index():
@@ -39,66 +41,182 @@ def detact():
 # Flask의 이미지 버튼으로 명령어 전달
 @app.route('/web/command/', methods=['POST'])
 def command():
-    cmd = request.form.get('command')   # POST로 전달받은 값
+    print("start command() :", time.time() - start)
+    cmd = request.form.get('command')  # POST로 전달받은 값
     logger.info({'action': 'command', 'cmd': cmd})
     drone = Tello()
-    if cmd == 'command':
-        drone.connect()
-    if cmd == 'streamon':
-        drone.streamon()
-    if cmd == 'streamoff':
-        drone.streamoff()
-    if cmd == 'takeOff':
-        drone.takeoff()
-    if cmd == 'land':
-        drone.land()
-    if cmd == 'speed':
-        speed = request.form.get('speed')
-        logger.info({'action': 'command', 'cmd': cmd, 'speed': speed})
-        if speed:
-            drone.set_speed(int(speed))
-    if cmd == 'up':
-        speed = request.form.get('speed')
-        drone.move_up(int(speed))
-    if cmd == 'down':
-        speed = request.form.get('speed')
-        drone.move_down(int(speed))
-    if cmd == 'forward':
-        speed = request.form.get('speed')
-        drone.move_forward(int(speed))
-    if cmd == 'back':
-        speed = request.form.get('speed')
-        drone.move_back(int(speed))
-    if cmd == 'clockwise':
-        angle = request.form.get('angle')
-        drone.rotate_clockwise(int(angle))
-    if cmd == 'counterClockwise':
-        angle = request.form.get('angle')
-        drone.rotate_counter_clockwise(int(angle))
-    if cmd == 'left':
-        speed = request.form.get('speed')
-        drone.move_left(int(speed))
-    if cmd == 'right':
-        speed = request.form.get('speed')
-        drone.move_right(int(speed))
-    if cmd == 'flipFront':
-        drone.flip_front()
-    if cmd == 'flipBack':
-        drone.flip_back()
-    if cmd == 'flipLeft':
-        drone.flip_left()
-    if cmd == 'flipRight':
-        drone.flip_right()
-    if cmd == 'faceDetectAndTrack':
-        drone.enable_face_detect()
-    if cmd == 'stopFaceDetectAndTrack':
-        drone.disable_Face_detect()
-    if cmd == 'snapshot':
-        if drone.snapshot():
-            return jsonify(status='success'), 200
-        else:
-            return jsonify(status='fail'), 400
 
+    global mode
+    if mode == 0:   # not save
+        if cmd == 'command':
+            drone.connect()
+        if cmd == 'streamon':
+            drone.streamon()
+        if cmd == 'streamoff':
+            drone.streamoff()
+        if cmd == 'takeoff':
+            drone.takeoff()
+        if cmd == 'land':
+            drone.land()
+        if cmd == 'speed':
+            speed = request.form.get('speed')
+            logger.info({'action': 'command', 'cmd': cmd, 'speed': speed})
+            if speed:
+                drone.set_speed(int(speed))
+        if cmd == 'up':
+            speed = request.form.get('speed')
+            drone.move_up(int(speed))
+        if cmd == 'down':
+            speed = request.form.get('speed')
+            drone.move_down(int(speed))
+        if cmd == 'forward':
+            speed = request.form.get('speed')
+            drone.move_forward(int(speed))
+        if cmd == 'back':
+            speed = request.form.get('speed')
+            drone.move_back(int(speed))
+        if cmd == 'clockwise':
+            angle = request.form.get('angle')
+            drone.rotate_clockwise(int(angle))
+        if cmd == 'counterClockwise':
+            angle = request.form.get('angle')
+            drone.rotate_counter_clockwise(int(angle))
+        if cmd == 'left':
+            speed = request.form.get('speed')
+            drone.move_left(int(speed))
+        if cmd == 'right':
+            speed = request.form.get('speed')
+            drone.move_right(int(speed))
+        if cmd == 'flipFront':
+            drone.flip_front()
+        if cmd == 'flipBack':
+            drone.flip_back()
+        if cmd == 'flipLeft':
+            drone.flip_left()
+        if cmd == 'flipRight':
+            drone.flip_right()
+        if cmd == 'faceDetectAndTrack':
+            print("detect start")
+        if cmd == 'stopFaceDetectAndTrack':
+            print("detect stop")
+        if cmd == 'snapshot':
+            if drone.snapshot():
+                return jsonify(status='success'), 200
+            else:
+                return jsonify(status='fail'), 400
+
+    if mode == 1:   # save
+        global log
+        print("log in :", log)
+        if cmd == 'command':
+            log.append('command')
+            print("log :", log)
+            drone.connect()
+
+        if cmd == 'streamon':
+            log.append('streamon')
+            print("log :", log)
+            drone.streamon()
+
+        if cmd == 'streamoff':
+            drone.streamoff()
+
+        if cmd == 'takeoff':
+            log.append('takeoff')
+            # print("log :", log)
+            drone.takeoff()
+
+        if cmd == 'land':
+            log.append('land')
+            # print("log :", log)
+            drone.land()
+
+        if cmd == 'speed':
+            speed = request.form.get('speed')
+            logger.info({'action': 'command', 'cmd': cmd, 'speed': speed})
+            if speed:
+                drone.set_speed(int(speed))
+
+        if cmd == 'up':
+            speed = request.form.get('speed')
+            log.append('up {}'.format(speed))
+            print("log :", log)
+            drone.move_up(int(speed))
+
+        if cmd == 'down':
+            speed = request.form.get('speed')
+            log.append('down {}'.format(speed))
+            print("log :", log)
+            drone.move_down(int(speed))
+
+        if cmd == 'forward':
+            speed = request.form.get('speed')
+            log.append('forward {}'.format(speed))
+            print("log :", log)
+            drone.move_forward(int(speed))
+
+        if cmd == 'back':
+            speed = request.form.get('speed')
+            log.append('back {}'.format(speed))
+            print("log :", log)
+            drone.move_back(int(speed))
+
+        if cmd == 'clockwise':
+            angle = request.form.get('angle')
+            log.append('cw {}'.format(angle))
+            print("log :", log)
+            drone.rotate_clockwise(int(angle))
+
+        if cmd == 'counterClockwise':
+            angle = request.form.get('angle')
+            log.append('ccw {}'.format(angle))
+            print("log :", log)
+            drone.rotate_counter_clockwise(int(angle))
+
+        if cmd == 'left':
+            speed = request.form.get('speed')
+            log.append('left {}'.format(speed))
+            print("log :", log)
+            drone.move_left(int(speed))
+
+        if cmd == 'right':
+            speed = request.form.get('speed')
+            log.append('right {}'.format(speed))
+            print("log :", log)
+            drone.move_right(int(speed))
+
+        if cmd == 'flipFront':
+            log.append('flip f')
+            print("log :", log)
+            drone.flip_front()
+
+        if cmd == 'flipBack':
+            log.append('flip b')
+            print("log :", log)
+            drone.flip_back()
+
+        if cmd == 'flipLeft':
+            log.append('flip l')
+            print("log :", log)
+            drone.flip_left()
+
+        if cmd == 'flipRight':
+            log.append('flip r')
+            print("log :", log)
+            drone.flip_right()
+
+        if cmd == 'faceDetectAndTrack':
+            print("detect start")
+        if cmd == 'stopFaceDetectAndTrack':
+            print("detect stop")
+        if cmd == 'snapshot':
+            if drone.snapshot():
+                return jsonify(status='success'), 200
+            else:
+                return jsonify(status='fail'), 400
+
+    print("log out :", log)
+    print("end command() :", time.time() - start)
     return jsonify(status='success'), 200
 
 @app.route('/key/command/')
@@ -108,7 +226,8 @@ def keyboard_cmd():
     return render_template('Keyboard.html')
 
 @app.route('/replay/create/', methods=['POST'])
-def create_replay():    # DB에 저장하기
+def create_replay():    # replay record start
+    print("start create_replay() :", time.time() - start)
     print("create replay start")
     replay_name = request.form.get('replay')
     print("replay_name : {}".format(replay_name))
@@ -123,9 +242,21 @@ def create_replay():    # DB에 저장하기
     row = db_class.execute(sql)
     db_class.commit()
 
-    cmds = command()
+    global mode
+    mode = 1    # save
 
+    print("end create_replay() :", time.time() - start)
     return render_template('controller.html')
+
+@app.route('/replay/save/', methods=['POST'])
+def create_replay():    # DB에 저장하기
+    print("save replay :", time.time() - start)
+    print("final log :", log)
+
+    # DB 연결할 객체
+    db_class = Database()
+
+
 
 # Generator(제네레이터) : iterator(값을 차례대로 꺼낼 수 있는 객체)를 생성해주는 함수
 # def video_generator():

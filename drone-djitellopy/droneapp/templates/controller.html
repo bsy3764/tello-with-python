@@ -71,7 +71,8 @@
     <script>
         // onclick시 호출하는 함수 정의
         function sendCommand(command, params={}) {
-            console.log({action: 'sendCommand', command: command, params: params})
+            console.time("sendCommand");
+            console.log({action: 'sendCommand', command: command, params: params});
             params['command'] = command    // dict 형식으로 저장됨
             // jQuery에서 Ajax를 이용한 POST 방식의 HTTP 요청을 구현한 메소드를 제공
             // $.post(URL주소[,데이터][,콜백함수]);
@@ -143,6 +144,7 @@
                     }
                 }
             });
+            console.timeEnd("sendCommand");
         };
 
         // $(document) : DOM(HTML이나 XML 상위의 구조)이 생성되면 사용 가능
@@ -178,12 +180,12 @@
             }, 'json')
         }
 
-
+        // replay 시작 종료 설정
         $(document).ready(function() {
             $('#button1').click(function() {
                 console.log("tes1");
                 st = $('#button1').text();
-                console.log("st :" + st);
+                console.log("Replay state :" + st);
                 if( st == 'Create Replay' ) {
                     console.log("tes2");
                     var Rtitle = prompt('Replay Title?');
@@ -206,6 +208,12 @@
                     var result = confirm("Replay save???")
                     if(result){
                         console.log("Yes, Save");
+                        $.ajax({
+                            type: "POST",
+                            url: "/replay/save/",
+                            data: params,
+                            dataType: "json"
+                        })
                     }else{
                         console.log("No, Not Dave");
                     }
@@ -232,7 +240,7 @@
 
     <div class="controller-box">
         <div data-role="controlgroup" data-type="horizontal">
-            <a href="#" class="buttons btn-takeoff" data-role="button" onclick="sendCommand('takeOff'); return false;">Take Off</a>
+            <a href="#" class="buttons btn-takeoff" data-role="button" onclick="sendCommand('takeoff'); return false;">Take Off</a>
             <a href="#" class="buttons btn-land" data-role="button" onclick="sendCommand('land'); return false;">Land</a>
             <a href="#" class="buttons btn-streamon" id="vodOn" data-role="button" onclick="sendCommand('streamon'); return false;">Video On</a>
             <a href="#" class="buttons btn-emergency" data-role="button" onclick="sendCommand('emergency'); return false;">Emergency</a>
