@@ -79,7 +79,7 @@
             // $.post().done() : 요청이 성공했을 때 실행될 코드를 지정
 
             // move 명령일 경우, 스피드도 전달이 필요하므로
-            if (command == 'up' || command == 'down' || command == 'forward' || 
+            if (command == 'up' || command == 'down' || command == 'forward' ||
                 command == 'back' || command == 'left' || command == 'right'){
                     params['speed'] = $("#slider-speed").val();
 
@@ -103,7 +103,7 @@
                     });
                 }
 
-                if (command == 'clockwise' || command == 'counterClockwise'){
+                else if (command == 'clockwise' || command == 'counterClockwise'){
                     params['angle'] = $("#slider-angle").val();
 
                     $.ajax({
@@ -126,25 +126,27 @@
                     });
                 }
 
-            $.ajax({
-                type: "POST",
-                url: "/web/command/",
-                data: params,
-                dataType: "json",
-                success: function(json){
-                    let result = json['status'];
-                    if (result == 'success'){
-                        console.log(command + " : success");
-                    }
-                },
-                error: function(json){
-                    let result = json['status'];
-                    if (result != 'success'){
-                        console.log(command +" : Error");
-                    }
+                else {
+                    $.ajax({
+                        type: "POST",
+                        url: "/web/command/",
+                        data: params,
+                        dataType: "json",
+                        success: function(json){
+                            let result = json['status'];
+                            if (result == 'success'){
+                                console.log(command + " : success");
+                            }
+                        },
+                        error: function(json){
+                            let result = json['status'];
+                            if (result != 'success'){
+                                console.log(command +" : Error");
+                            }
+                        }
+                    });
+                    console.timeEnd("sendCommand");
                 }
-            });
-            console.timeEnd("sendCommand");
         };
 
         // $(document) : DOM(HTML이나 XML 상위의 구조)이 생성되면 사용 가능
@@ -206,19 +208,20 @@
                 } else {
                     console.log("test3");
                     var result = confirm("Replay save???")
-                    if(result){
+                    if (result) {
                         console.log("Yes, Save");
+                        let params = {replay: Rtitle};
+                        $('#button1').text('Create Replay');
+                        document.getElementById("button1").value = 'Create Replay';
                         $.ajax({
                             type: "POST",
                             url: "/replay/save/",
-                            data: params,
+                            data: params,   // replay name이랑, server.py의 log, gap란 list가 필요
                             dataType: "json"
                         })
-                    }else{
+                    } else {
                         console.log("No, Not Dave");
                     }
-                    $('#button1').text('Create Replay');
-                    document.getElementById("button1").value = 'Create Replay';
                 }
             });
         });
