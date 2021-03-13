@@ -108,15 +108,20 @@ def command():
         global log, replay_start, gap, bef_cmd, aft_cmd
         print("replay_start 2 :", replay_start)
         if not bef_cmd:  # bef_cmd 가 0이라면(replay 저장 시작 중 가장 먼저 눌린 버튼의 시간 체크하기 위해)
+            log.append("start")
             bef_cmd = replay_start  # 이전 명령어 실행시간
             now_cmd = time.time()
             first_gap = now_cmd - replay_start
             print("first_cmd gap :", first_gap)
+            print("first_cmd gap round :", round(first_gap, 1))
+            log.append("wait," + str(round(first_gap, 1)))
         else:
             bef_cmd = aft_cmd
             now_cmd = time.time()
             cmd_gap = now_cmd - bef_cmd
             print("cmd gat time :", cmd_gap)
+            print("cmd gap round :", round(cmd_gap, 1))
+            log.append("wait," + str(round(cmd_gap, 1)))
         aft_cmd = time.time()   # 현재 명령어 실행시간
         cmd_gap = aft_cmd - bef_cmd # 명령어 사이의 시간 차
         print("log in :", log)
@@ -273,10 +278,13 @@ def create_replay():    # replay record start
 
 @app.route('/replay/save/', methods=['POST'])
 def save_replay():    # DB에 저장하기
-    global repl_id, aft_cmd
+    global log, repl_id, aft_cmd
     replay_end = time.time()  # replay 종료하는 시간
     finish_cmd = replay_end - aft_cmd
     print("last cmd ~ save gap :", finish_cmd)
+    print("last cmd ~ save gap round :", round(finish_cmd, 1))
+    log.append("wait," + str(round(finish_cmd, 1)))
+    log.append("end")
     replay_name = request.form.get('replay')
     print("save replay id : {}".format(repl_id))
     print("final log :", log)
@@ -302,7 +310,7 @@ def get_replay_list():
     # DB 연결할 객체
     db_class = Database()
 
-    #
+    # replay 목록을 가져오는 sql
     sql2 = "select * from replay_list order by id asc"
 
     row = db_class.executeAll(sql2)
@@ -314,6 +322,55 @@ def get_replay_list():
 def replay_list():
     get_replay = get_replay_list()
     return render_template('replay_list.html', data_list=get_replay)
+
+@app.route('/replay/play/', methods=['POST'])
+def replay_play():
+    replay_id = request.form.get('replay_id')  # POST로 전달받은 값
+    print("replay_id :", replay_id)
+
+    # DB 연결할 객체
+    db_class = Database()
+
+    # replay 목록을 가져오는 sql
+    sql1 = "select replay_name from replay_list where id={}".format(replay_id)
+    row = db_class.executeAll(sql1)
+    print("sql1 result 1 :", row)     # [{'replay_name': '55'}]
+    print("sql1 result 2 :", row[0]['replay_name'])
+
+    cmd_list = []
+    sql2 = "select * from Sensor where replay_id={}".format(replay_id)
+    row = db_class.executeAll(sql2)
+    print("sql2 result 1 :", row)
+    for cmd_read in row:    # db에 저장된 명령어를 리스트에 추가시킴
+        print("cmd 1 :", cmd_read)
+        cmd = cmd_read['cmd']
+        print("cmd 2 :", cmd)
+        cmd_list.append(cmd)
+        print("cmd_list :", cmd_list)
+
+    drone = Tello()
+
+    # replay 내용을 drone에게 전달
+    for cmd in cmd_list:
+        print("cmd 3 :", cmd)
+        if cmd == 'start':
+            continue
+        elif cmd == 'end':
+            break
+        elif 'wait' in cmd:
+            print("wait time :", cmd)
+            _, wait_time = cmd.split(',')
+            print("time :", wait_time)
+            time.sleep(float(wait_time))
+        else:
+            print("drone cmd :", cmd)
+            result = drone.send_command_with_return(cmd)
+            if result == 'ok' or result == 'OK':
+                continue
+            else:
+                print("{} command fail!!!!!!".format(cmd))
+
+    return render_template('replay_list.html')
 
 # Generator(제네레이터) : iterator(값을 차례대로 꺼낼 수 있는 객체)를 생성해주는 함수
 # def video_generator():

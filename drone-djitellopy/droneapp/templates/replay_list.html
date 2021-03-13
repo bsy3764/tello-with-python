@@ -2,41 +2,21 @@
 
 {% block content %}
     <script>
-        // 버튼 클릭시 Row 값 가져오기
-        $("#checkBtn").click(function(){
-            console.log("replay get!");
-
-            var str = ""
-            var tdArr = new Array();    // 배열 선언
-            var checkBtn = $(this);
-
-            // checkBtn.parent() : checkBtn의 부모는 <td>이다.
-            // checkBtn.parent().parent() : <td>의 부모이므로 <tr>이다.
-            var tr = checkBtn.parent().parent();
-            var td = tr.children();
-
-            console.log("클릭한 Row의 모든 데이터 : "+tr.text());
-
-            var no = td.eq(0).text();
-            var name = td.eq(1).text();
-            var date = td.eq(2).text();
-
-
-            // 반복문을 이용해서 배열에 값을 담아 사용할 수 도 있다.
-            td.each(function(i){
-                tdArr.push(td.eq(i).text());
+        function getCmd() {
+            $(document).ready(function() {
+                $('td').click(function(){
+                    var trindex = $('tr').index($(this).parent());
+                    console.log("row :", trindex);
+                    let params = {replay_id: trindex};
+                    $.ajax({
+                            type: "POST",
+                            url: "/replay/play/",
+                            data: params,
+                            dataType: "json"
+                    })
+                });
             });
-
-            console.log("배열에 담긴 값 : "+tdArr);
-
-
-            str +=  " * 클릭된 Row의 td값 = No. : <font color='red'>" + no + "</font>" +
-                    ", 이름 : <font color='red'>" + name + "</font>" +
-                    ", 날짜 : <font color='red'>" + email + "</font>";
-
-            $("#ex2_Result1").html(" * 클릭한 Row의 모든 데이터 = " + tr.text());
-            $("#ex2_Result2").html(str);
-        });
+        }
     </script>
     <div class="container">
         <table class="table table-hover">
@@ -52,10 +32,10 @@
                 {% for i in data_list %}
                 <tr>
                     <td>{{ i['id'] }}</td>
-                    <td id="replay_id">{{ i['replay_name'] }}</td>
+                    <td>{{ i['replay_name'] }}</td>
                     <td>{{ i['replay_date'] }}</td>
                     <td>
-                        <button class="btn btn-primary" id="checkBtn">실행하기</button>
+                        <button class="btn btn-primary" id="checkBtn" onclick="getCmd()">실행하기</button>
                     </td>
                 </tr>
                 {% endfor %}

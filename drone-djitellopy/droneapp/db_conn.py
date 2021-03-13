@@ -29,14 +29,13 @@ class Database():
 
 # CREATE TABLE replay_list(
 # 	id INT AUTO_INCREMENT PRIMARY KEY,
-# 	replay_name VARCHAR(50),
+# 	replay_name VARCHAR(100),
 # 	replay_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 # );
-#
+
 # CREATE TABLE Sensor(
 # 	id INT AUTO_INCREMENT PRIMARY KEY,
 # 	replay_id INT,
-# 	cmd VARCHAR(50) null,
-# 	start_h INT,
+# 	cmd VARCHAR(100) null,
 # 	FOREIGN KEY(replay_id) REFERENCES replay_list(id)
 # );
