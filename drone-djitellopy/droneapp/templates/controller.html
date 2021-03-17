@@ -79,7 +79,7 @@
             // $.post().done() : 요청이 성공했을 때 실행될 코드를 지정
 
             // move 명령일 경우, 스피드도 전달이 필요하므로
-            if (command == 'up' || command == 'down' || command == 'forward' || 
+            if (command == 'up' || command == 'down' || command == 'forward' ||
                 command == 'back' || command == 'left' || command == 'right'){
                     params['speed'] = $("#slider-speed").val();
 
@@ -125,7 +125,7 @@
                         }
                     });
                 }
-                
+
                 else {
                     $.ajax({
                         type: "POST",

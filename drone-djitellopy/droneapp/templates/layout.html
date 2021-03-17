@@ -5,8 +5,11 @@
         <meta charset="utf-8"/>
         <title>Instagram with django</title>
         <link rel="stylesheet" href="/static/css/bootstrap.min.css" />
-
         <link rel="stylesheet" href="/static/css/jquery.mobile-1.4.5.min.css" />
+
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/jquery.mobile-1.4.5.min.css') }}">
+
         <script src="/static/js/jquery-3.5.1.min.js"></script>
         <script src="/static/js/bootstrap.min.js"></script>
         <script src="/static/js/jquery.mobile-1.4.5.min.js"></script>
